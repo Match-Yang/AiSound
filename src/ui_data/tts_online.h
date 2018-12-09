@@ -18,11 +18,12 @@ class TtsOnline : public QObject
     Q_PROPERTY(int speed READ getSpeed WRITE setSpeed NOTIFY onSpeedChanged)
     Q_PROPERTY(int sampleRate READ getSampleRate WRITE setSampleRate NOTIFY onSampleRateChanged)
     Q_PROPERTY(QString voiceName READ getVoiceName WRITE setVoiceName NOTIFY onVoiceNameChanged)
+    Q_PROPERTY(QString storagePath READ getStoragePath WRITE setStoragePath NOTIFY onStoragePathChanged)
 
 public:
     explicit TtsOnline(QObject *parent = nullptr);
     ~TtsOnline();
-    Q_INVOKABLE void processTtsOnline(const QString &text) const;
+    Q_INVOKABLE void processTtsOnline(const QString &text);
 
     QString getAppId() const
     {
@@ -59,8 +60,14 @@ public:
         return m_voiceName;
     }
 
+    QString getStoragePath() const
+    {
+        return m_storagePath;
+    }
+
 signals:
-    void onProcessTtsOnlineFinish(const QString &text, int error_code);
+    void onProcessTtsOnlineStart(QString text);
+    void onProcessTtsOnlineFinish(QString text, int error_code);
 
     void onAppIdChanged(QString appId);
 
@@ -75,6 +82,8 @@ signals:
     void onSampleRateChanged(int sampleRate);
 
     void onVoiceNameChanged(QString voiceName);
+
+    void onStoragePathChanged(QString storagePath);
 
 public slots:
     void setAppId(QString appId)
@@ -177,10 +186,19 @@ public slots:
         emit onVoiceNameChanged(m_voiceName);
     }
 
+    void setStoragePath(QString storagePath)
+    {
+        if (m_storagePath == storagePath)
+            return;
+
+        m_storagePath = storagePath;
+        emit onStoragePathChanged(m_storagePath);
+    }
+
 private:
     const QString getLoginParams() const;
     const QString getSessionBeginParams() const;
-    int textToSpeech(const QString &text) const;
+    int textToSpeech(const QString &text);
     /**
      * @brief tryLogin
      * Try to login when appid is changed
@@ -200,6 +218,7 @@ private:
 
     int m_sampleRate;
     QString m_voiceName;
+    QString m_storagePath;
 };
 
 #endif // TTS_ONLINE_H

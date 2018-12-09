@@ -1,4 +1,4 @@
-QT += quick
+QT += quick concurrent
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
@@ -14,7 +14,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         src/main.cpp \
-    src/ui_data/tts_online.cpp
+    src/ui_data/tts_online.cpp \
+    src/common/config_setter.cpp
 
 RESOURCES += src/ui/qml.qrc
 
@@ -35,4 +36,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    src/ui_data/tts_online.h
+    src/ui_data/tts_online.h \
+    src/common/config_setter.h

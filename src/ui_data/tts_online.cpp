@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QThread>
+#include <QtConcurrent/QtConcurrent>
 
 namespace {
 
@@ -51,6 +52,7 @@ TtsOnline::TtsOnline(QObject *parent) : QObject(parent)
     setSpeed(50);
     setSampleRate(16000);
     setVoiceName("xiaoyan");
+    setStoragePath("/tmp");
     processTtsOnline("添加wav音频头，使用采样率为16000");
 }
 
@@ -59,9 +61,13 @@ TtsOnline::~TtsOnline()
     MSPLogout(); //退出登录
 }
 
-void TtsOnline::processTtsOnline(const QString &text) const
+void TtsOnline::processTtsOnline(const QString &text)
 {
-    qDebug() << textToSpeech(text);
+    emit onProcessTtsOnlineStart(text);
+    QtConcurrent::run([=]() {
+        auto ret = textToSpeech(text);
+        emit onProcessTtsOnlineFinish(text, ret);
+    });
 }
 
 const QString TtsOnline::getLoginParams() const
@@ -75,7 +81,7 @@ const QString TtsOnline::getSessionBeginParams() const
             .arg(m_voiceName).arg(m_sampleRate).arg(m_speed).arg(m_volume).arg(m_pitch).arg(m_rdn);
 }
 
-int TtsOnline::textToSpeech(const QString &text) const
+int TtsOnline::textToSpeech(const QString &text)
 {
     int          ret          = -1;
     const char*  sessionID    = nullptr;
@@ -88,8 +94,7 @@ int TtsOnline::textToSpeech(const QString &text) const
         return ret;
     }
 
-    // TODO use specify path
-    QFile file(QString("/tmp/%1.wav").arg(text));
+    QFile file(QString("%1/%2.wav").arg(m_storagePath).arg(text));
     if (!file.open(QIODevice::WriteOnly)) {
         qWarning() << "Open file to write failed: " << file.errorString();
         return ret;
