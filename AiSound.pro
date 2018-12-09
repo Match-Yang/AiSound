@@ -13,9 +13,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        src/main.cpp
+        src/main.cpp \
+    src/ui_data/tts_online.cpp
 
 RESOURCES += src/ui/qml.qrc
+
+INCLUDEPATH += 3rdparty/aisound/include/
+
+# please install the libmsc into your path or use the linuxdeployqt like toos to pack it up.
+LIBS += -L"$$_PRO_FILE_PWD_/3rdparty/aisound/libs/x64/" -lmsc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -27,3 +33,6 @@ QML_DESIGNER_IMPORT_PATH =
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+HEADERS += \
+    src/ui_data/tts_online.h

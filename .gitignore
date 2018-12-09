@@ -71,3 +71,5 @@ Thumbs.db
 *.dll
 *.exe
 
+# msc
+3rdparty/aisound/bin/msc/*.log
