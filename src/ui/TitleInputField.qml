@@ -2,8 +2,13 @@ import QtQuick 2.12
 import QtQuick.Controls 2.4
 
 Item {
+    id: root
     property alias title: title_label.text
     property alias text: value_text.text
+    property alias buttonText: button.text
+
+    signal accepted()
+    signal clicked()
 
     Label {
         id: title_label
@@ -17,10 +22,19 @@ Item {
 
     TextField {
         id: value_text
-        width: parent.width - 10
+        width: parent.width - 10 - button.width
         height: 40
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.left: parent.left
         anchors.bottom: parent.bottom
+        onAccepted: root.accepted()
     }
 
+    Button {
+        id: button
+        width: 70
+        height: 45
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        onClicked: root.clicked()
+    }
 }

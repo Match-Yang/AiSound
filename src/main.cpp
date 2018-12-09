@@ -1,4 +1,5 @@
 #include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include "common/config_setter.h"
@@ -6,13 +7,13 @@
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
-    engine.rootContext()->setContextProperty("ttsOnline", new ConfigSetter());
-    engine.rootContext()->setContextProperty("configSetter", new TtsOnline());
+    engine.rootContext()->setContextProperty("ttsOnline", new TtsOnline());
+    engine.rootContext()->setContextProperty("configSetter", new ConfigSetter());
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;

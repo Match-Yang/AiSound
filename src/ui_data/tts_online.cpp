@@ -45,15 +45,6 @@ const WavePcmHdr kDefaultWavHdr = {
 
 TtsOnline::TtsOnline(QObject *parent) : QObject(parent)
 {
-    setAppId("5c0c936a");
-    setRdn(2);
-    setVolume(50);
-    setPitch(50);
-    setSpeed(50);
-    setSampleRate(16000);
-    setVoiceName("xiaoyan");
-    setStoragePath("/tmp");
-    processTtsOnline("添加wav音频头，使用采样率为16000");
 }
 
 TtsOnline::~TtsOnline()
@@ -87,6 +78,7 @@ int TtsOnline::textToSpeech(const QString &text)
     const char*  sessionID    = nullptr;
     unsigned int audio_len    = 0;
     WavePcmHdr wav_hdr      = kDefaultWavHdr;
+    wav_hdr.samples_per_sec = m_sampleRate;
     int          synth_status = MSP_TTS_FLAG_STILL_HAVE_DATA;
 
     if (text.isEmpty()) {
@@ -96,7 +88,7 @@ int TtsOnline::textToSpeech(const QString &text)
 
     QFile file(QString("%1/%2.wav").arg(m_storagePath).arg(text));
     if (!file.open(QIODevice::WriteOnly)) {
-        qWarning() << "Open file to write failed: " << file.errorString();
+        qWarning() << "Open file to write failed: " << file.errorString() << " File: " << file.fileName();
         return ret;
     }
     /* 开始合成 */
@@ -156,6 +148,7 @@ void TtsOnline::tryLogin()
     if (m_appId.isEmpty()) {
         return;
     }
+
     MSPLogout(); //退出登录
     int ret = MSPLogin(nullptr, nullptr, getLoginParams().toUtf8().constData());
     if (ret != MSP_SUCCESS) {

@@ -1,9 +1,11 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.4
+import Qt.labs.platform 1.1
 
 Item {
     id: root
     readonly property string titleColor: "#3c4153"
+    readonly property string onlineTtsGroup: "kOnlineTtsGroup"
 
     ScrollView {
         width: parent.width - 100
@@ -43,14 +45,62 @@ Item {
 
             TitleInputField {
                 title: "AppId"
+                buttonText: "登录"
                 width: parent.width
                 height: 70
 
+                function updateAppId() {
+                    if (text === "") {
+                        return;
+                    }
+
+                    configSetter.setValue(onlineTtsGroup, "appId", text)
+                    ttsOnline.appId = text
+                }
+
+                onAccepted: updateAppId()
+                onClicked: updateAppId()
+                text: configSetter.getValue(onlineTtsGroup, "appId", "")
+
+                Component.onCompleted: ttsOnline.appId = text
             }
 
+            TitleInputField {
+                id: tif
+                title: "存储目录"
+                buttonText: "选择"
+                width: parent.width
+                height: 70
+
+                function updateStorageDir() {
+                    if (text === "") {
+                        return;
+                    }
+
+                    configSetter.setValue(onlineTtsGroup, "storageDir", text)
+                    ttsOnline.storagePath = text
+                }
+
+                onAccepted: updateStorageDir()
+                onClicked: fileDialog.open()
+                text: configSetter.getValue(onlineTtsGroup, "storageDir", "")
+                Component.onCompleted: ttsOnline.storagePath = text
+
+                FolderDialog {
+                    id: fileDialog
+                    onAccepted: {
+                        var path = folder.toString().replace("file://", "")
+                        configSetter.setValue(onlineTtsGroup, "storageDir", path)
+                        ttsOnline.storagePath = path
+                        tif.text = path
+                    }
+
+                    folder: StandardPaths.writableLocation(StandardPaths.HomeLocation)
+                }
+            }
 
             TitleCombobox {
-                id: control
+                id: name_cb
                 property var nameList: [
                     {"name":"小燕", "language": "普通话", "voiceType": "青年女声", "voiceValue":"xiaoyan"},
                     {"name":"燕平", "language": "普通话", "voiceType": "青年女声", "voiceValue":"yanping"},
@@ -76,30 +126,30 @@ Item {
                 height: 80
                 model: nameList
                 delegate: ItemDelegate {
-                    width: control.combobox.width
+                    width: name_cb.combobox.width
                     contentItem: Text {
                         text: modelData.name + " " +  modelData.language + " " + modelData.voiceType
                         color: titleColor
-                        font: control.combobox.font
+                        font: name_cb.combobox.font
                         elide: Text.ElideRight
                         verticalAlignment: Text.AlignVCenter
                     }
-                    highlighted: control.combobox.highlightedIndex === index
+                    highlighted: name_cb.combobox.highlightedIndex === index
                     onClicked: {
-                        control.currentIndex = index
+                        name_cb.currentIndex = index
                     }
                 }
 
                 indicator: Canvas {
                     id: canvas
-                    x: control.combobox.width - width - control.combobox.rightPadding
-                    y: control.combobox.topPadding + (control.combobox.availableHeight - height) / 2
+                    x: name_cb.combobox.width - width - name_cb.combobox.rightPadding
+                    y: name_cb.combobox.topPadding + (name_cb.combobox.availableHeight - height) / 2
                     width: 12
                     height: 5
                     contextType: "2d"
 
                     Connections {
-                        target: control.combobox
+                        target: name_cb.combobox
                         onPressedChanged: canvas.requestPaint()
                     }
 
@@ -116,10 +166,10 @@ Item {
 
                 contentItem: Text {
                     leftPadding: 10
-                    rightPadding: control.combobox.indicator.width + control.combobox.spacing
+                    rightPadding: name_cb.combobox.indicator.width + name_cb.combobox.spacing
 
-                    text: control.combobox.displayText
-                    font: control.combobox.font
+                    text: name_cb.combobox.displayText
+                    font: name_cb.combobox.font
                     color: titleColor
                     verticalAlignment: Text.AlignVCenter
                     elide: Text.ElideRight
@@ -127,8 +177,10 @@ Item {
 
                 onCurrentIndexChanged: {
                     ttsOnline.voiceName = nameList[currentIndex].voiceValue
-                    control.combobox.displayText = nameList[currentIndex].name + " " +  nameList[currentIndex].language + " " + nameList[currentIndex].voiceType
+                    configSetter.setValue(onlineTtsGroup, "voiceNameIndex", currentIndex)
+                    name_cb.combobox.displayText = nameList[currentIndex].name + " " +  nameList[currentIndex].language + " " + nameList[currentIndex].voiceType
                 }
+                currentIndex: configSetter.getValue(onlineTtsGroup, "voiceNameIndex", 0)
             }
 
             TitleCombobox {
@@ -138,7 +190,9 @@ Item {
                 model: ["数值优先", "完全数值", "完全字符串", "字符串优先"]
                 onCurrentIndexChanged: {
                     ttsOnline.rdn = currentIndex
+                    configSetter.setValue(onlineTtsGroup, "rdnIndex", currentIndex)
                 }
+                currentIndex: configSetter.getValue(onlineTtsGroup, "rdnIndex", 0)
             }
 
             TitleSlider {
@@ -149,9 +203,10 @@ Item {
                 to: 100
                 onValueChanged: {
                     ttsOnline.volume = Math.round(value)
+                    configSetter.setValue(onlineTtsGroup, "volume", ttsOnline.volume)
                 }
+                value: configSetter.getValue(onlineTtsGroup, "volume", 50)
             }
-
 
             TitleSlider {
                 title: "合成音频音调"
@@ -161,7 +216,9 @@ Item {
                 to: 100
                 onValueChanged: {
                     ttsOnline.pitch = Math.round(value)
+                    configSetter.setValue(onlineTtsGroup, "pitch", ttsOnline.pitch)
                 }
+                value: configSetter.getValue(onlineTtsGroup, "pitch", 50)
             }
 
             TitleSlider {
@@ -172,17 +229,22 @@ Item {
                 to: 100
                 onValueChanged: {
                     ttsOnline.speed = Math.round(value)
+                    configSetter.setValue(onlineTtsGroup, "speed", ttsOnline.speed)
                 }
+                value: configSetter.getValue(onlineTtsGroup, "speed", 50)
             }
 
             TitleCombobox {
                 title: "合成音频采样率"
                 width: parent.width
                 height: 80
-                model: ["16000", "8000"]
+                model: sampleRateList
+                property var sampleRateList: ["16000", "8000"]
                 onCurrentIndexChanged: {
-                    ttsOnline.sampleRate = currentIndex
+                    ttsOnline.sampleRate = sampleRateList[currentIndex]
+                    configSetter.setValue(onlineTtsGroup, "sampleRateIndex", currentIndex)
                 }
+                currentIndex: configSetter.getValue(onlineTtsGroup, "sampleRateIndex", 0)
             }
         }
 

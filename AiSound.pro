@@ -1,4 +1,4 @@
-QT += quick concurrent
+QT += quick concurrent widgets
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
@@ -17,7 +17,8 @@ SOURCES += \
     src/ui_data/tts_online.cpp \
     src/common/config_setter.cpp
 
-RESOURCES += src/ui/qml.qrc
+RESOURCES += src/ui/qml.qrc \
+    src/resources/image/image.qrc
 
 INCLUDEPATH += 3rdparty/aisound/include/
 
