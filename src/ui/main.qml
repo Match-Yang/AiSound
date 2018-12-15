@@ -5,6 +5,8 @@ ApplicationWindow {
     visible: true
     width: 480
     height: 640
+    x: 0
+    y: 0
     title: qsTr("AiSound")
 
 
@@ -13,7 +15,7 @@ ApplicationWindow {
         anchors.fill: parent
         currentIndex: tabBar.currentIndex
 
-        Pane {
+        VoicePage {
 //            width: parent.width
 //            height: 50
 //            anchors.top: parent.top
