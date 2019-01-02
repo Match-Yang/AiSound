@@ -1,12 +1,12 @@
 import QtQuick 2.0
-import QtQuick.Controls 2.4
-import QtQuick.Controls.Material 2.3
+import QtQuick.Controls 2.2
+import QtQuick.Controls.Material 2.2
 
 Pane {
     id: root
     Material.elevation: 6
-    horizontalPadding: 3
-    verticalPadding: 3
+//    horizontalPadding: 3
+//    verticalPadding: 3
     height: 40
     width: {
         if (text.length < 10) {

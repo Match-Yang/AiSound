@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>main.qml</file>
         <file>qtquickcontrols2.conf</file>
         <file>ConfigPage.qml</file>
         <file>VoicePage.qml</file>
